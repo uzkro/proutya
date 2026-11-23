@@ -1,0 +1,103 @@
+{
+  "source": "code archive prutya-main.zip (WAR ON MEMECOINS, TanStack Start Telegram Mini App on TON, previously on another Lovable Cloud project)",
+  "capabilities": [
+    {
+      "capability": "code",
+      "source": "src/, public/, contracts/, wrappers/, scripts/, tests/",
+      "outcome": "migrate",
+      "status": "verified",
+      "next_action": "Copied; deps identical to target pins; build OK; 75 test files / 426 tests pass; all pages 200; Coin Board renders on mobile"
+    },
+    {
+      "capability": "schema",
+      "source": "drizzle/migrations/0000_game_schema_and_exec.sql + runtime bootstrap in src/lib/db/schema.server.ts",
+      "outcome": "migrate",
+      "status": "verified",
+      "next_action": "game schema + game_exec_sql migration applied; 40 game tables bootstrapped; health db ok"
+    },
+    {
+      "capability": "records",
+      "source": "previous Lovable Cloud database (schema game)",
+      "outcome": "migrate",
+      "status": "pending",
+      "next_action": "Ask for per-table CSV/JSON export after preview"
+    },
+    {
+      "capability": "auth identities",
+      "source": "Telegram Mini App initData + TonConnect ton_proof (no email/password users)",
+      "outcome": "preserve",
+      "status": "pending",
+      "next_action": "Needs TELEGRAM_BOT_TOKEN; real sign-in requires opening the bot in Telegram"
+    },
+    {
+      "capability": "authorization",
+      "source": "ADMIN_WALLETS allow-list",
+      "outcome": "preserve",
+      "status": "pending",
+      "next_action": "ADMIN_WALLETS needed for admin dashboard"
+    },
+    {
+      "capability": "uploaded file bytes",
+      "source": "public/images, src/assets",
+      "outcome": "migrate",
+      "status": "verified",
+      "next_action": "public/images and src/assets copied"
+    },
+    {
+      "capability": "external providers",
+      "source": "TonAPI, STON.fi, DeDust, swap.coffee, GeckoTerminal, PostHog, Sentry, Upstash",
+      "outcome": "preserve",
+      "status": "pending",
+      "next_action": "Code kept; keys requested securely when features are switched on"
+    },
+    {
+      "capability": "AI",
+      "source": "Lovable AI Gateway",
+      "outcome": "preserve",
+      "status": "verified",
+      "next_action": "LOVABLE_API_KEY provided by Cloud"
+    },
+    {
+      "capability": "public endpoints",
+      "source": "/api/public/*, /mcp, /.well-known",
+      "outcome": "preserve",
+      "status": "verified",
+      "next_action": "/api/public/agents 200; /api/public/health db+session ok (503 only because Telegram token unset); /mcp lists tools"
+    },
+    {
+      "capability": "schedules",
+      "source": "/api/public/jobs/* and /api/public/telegram/tick pinged externally with CRON_SECRET",
+      "outcome": "preserve",
+      "status": "pending",
+      "next_action": "External pinger needs CRON_SECRET"
+    },
+    {
+      "capability": "on-chain contracts",
+      "source": "contracts/ClaimTreasury, WarVault",
+      "outcome": "preserve",
+      "status": "pending",
+      "next_action": "Money paths stay off until signer/wallet keys are set"
+    },
+    {
+      "capability": "secrets",
+      "source": "env var names from code",
+      "outcome": "preserve",
+      "status": "pending",
+      "next_action": "SESSION_SECRET + PROVIDER_KEY_SECRET generated (new values: old sealed provider keys in imported rows will not decrypt); TELEGRAM_BOT_TOKEN, ADMIN_WALLETS, TONAPI_KEY, signer/wallet keys, CRON_SECRET requested when needed"
+    },
+    {
+      "capability": "cutover",
+      "source": "tonconnect-manifest, Telegram bot Mini App URL + webhook",
+      "outcome": "preserve",
+      "status": "pending",
+      "next_action": "tonconnect-manifest points at this preview; after publishing update it and the Telegram bot Mini App/webhook URL"
+    },
+    {
+      "capability": "verification",
+      "source": "-",
+      "outcome": "migrate",
+      "status": "pending",
+      "next_action": "Build, tests, pages, DB verified; Telegram sign-in and old player records pending"
+    }
+  ]
+}
