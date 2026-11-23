@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ReactorRouteImport } from './routes/reactor'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WarRouteImport } from './routes/war'
 import { Route as WarCommandRouteImport } from './routes/war-command'
@@ -53,6 +54,11 @@ const McpRoute = McpRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReactorRoute = ReactorRouteImport.update({
+  id: '/reactor',
+  path: '/reactor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteRouteWithChildren
   '/mcp': typeof McpRoute
   '/privacy': typeof PrivacyRoute
+  '/reactor': typeof ReactorRoute
   '/terms': typeof TermsRoute
   '/war': typeof WarRoute
   '/war-command': typeof WarCommandRoute
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/mcp': typeof McpRoute
   '/privacy': typeof PrivacyRoute
+  '/reactor': typeof ReactorRoute
   '/terms': typeof TermsRoute
   '/war': typeof WarRoute
   '/war-command': typeof WarCommandRoute
@@ -225,6 +233,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteRouteWithChildren
   '/mcp': typeof McpRoute
   '/privacy': typeof PrivacyRoute
+  '/reactor': typeof ReactorRoute
   '/terms': typeof TermsRoute
   '/war': typeof WarRoute
   '/war-command': typeof WarCommandRoute
@@ -254,6 +263,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/mcp'
     | '/privacy'
+    | '/reactor'
     | '/terms'
     | '/war'
     | '/war-command'
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/'
     | '/mcp'
     | '/privacy'
+    | '/reactor'
     | '/terms'
     | '/war'
     | '/war-command'
@@ -307,6 +318,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/mcp'
     | '/privacy'
+    | '/reactor'
     | '/terms'
     | '/war'
     | '/war-command'
@@ -335,6 +347,7 @@ export interface RootRouteChildren {
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
   McpRoute: typeof McpRoute
   PrivacyRoute: typeof PrivacyRoute
+  ReactorRoute: typeof ReactorRoute
   TermsRoute: typeof TermsRoute
   WarRoute: typeof WarRoute
   WarCommandRoute: typeof WarCommandRoute
@@ -379,6 +392,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reactor': {
+      id: '/reactor'
+      path: '/reactor'
+      fullPath: '/reactor'
+      preLoaderRoute: typeof ReactorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -569,6 +589,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRouteRoute: AdminRouteRouteWithChildren,
   McpRoute: McpRoute,
   PrivacyRoute: PrivacyRoute,
+  ReactorRoute: ReactorRoute,
   TermsRoute: TermsRoute,
   WarRoute: WarRoute,
   WarCommandRoute: WarCommandRoute,

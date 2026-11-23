@@ -25,3 +25,8 @@ export function shareReflections(pot: number, weights: { id: string; map: number
 export function reactorApy(gram24h: number, reserveGram: number): number {
   return reserveGram > 0 ? (gram24h * 365 * 100) / reserveGram : 0;
 }
+
+/** $LOCKET jetton master on TON. */
+export const LOCKET_MASTER = "EQBSgq-9i6aJhO1HKUK6BcrvuXIs5i4gN4_E2rukQ41gQtqq";
+/** Protocol treasury wallet; null until configured, so fee routing stays off. */
+export const TREASURY_WALLET: string | null = null;
