@@ -84,11 +84,14 @@ export function CabalCallsPanel() {
                   <div className="font-bold text-foreground truncate">${c.symbol} <span className="text-muted-foreground">→ +{c.targetPct}%</span></div>
                   <div className="text-[0.65rem] text-muted-foreground truncate">{c.emblem ?? ""} {c.caller}{c.cabal ? ` · ${c.cabal}` : ""} · rep {c.reputation}</div>
                 </div>
-                <div className="text-right shrink-0">
+                <div className="text-right shrink-0 max-w-[45%]">
                   <div className={cn("font-mono font-bold", g >= 0 ? "text-neon-green" : "text-destructive")}>{g >= 0 ? "+" : ""}{g.toFixed(1)}%</div>
                   <div className={cn("text-[0.6rem] uppercase font-bold", c.status === "hit" ? "text-neon-green" : c.status === "rekt" ? "text-destructive" : "text-muted-foreground")}>
-                    {c.status === "active" ? timeLeft(c.expiresAt) : c.status === "hit" ? "Approved by Putya" : "Putya roast: rekt"}
+                    {c.status === "active" ? timeLeft(c.expiresAt) : c.verdict?.title}
                   </div>
+                  {c.status === "rekt" && c.slashedBurn + c.slashedVault > 0 && (
+                    <div className="text-[0.55rem] text-muted-foreground">🔥 {Math.round(c.slashedBurn).toLocaleString("en-US")} burn · 🏦 {Math.round(c.slashedVault).toLocaleString("en-US")} vault</div>
+                  )}
                 </div>
               </li>
             );

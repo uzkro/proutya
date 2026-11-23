@@ -39,3 +39,22 @@ export function reputationDelta(status: CallStatus, targetPct: number): number {
 export function gloryReward(status: CallStatus, targetPct: number): number {
   return status === "hit" ? Math.round(100 * (1 + targetPct / 100)) : 0;
 }
+
+/** Slashed bond split on REKT: half burned, half to the War Vault for players. */
+export function slashSplit(status: CallStatus, bond: number): { burn: number; vault: number; returned: number } {
+  if (status !== "rekt") return { burn: 0, vault: 0, returned: status === "hit" ? bond : 0 };
+  const burn = Math.floor(bond / 2);
+  return { burn, vault: bond - burn, returned: 0 };
+}
+
+/** Putya verdict card shown when a call settles. */
+export function verdictCard(status: CallStatus): { title: string; tone: "alpha" | "rekt" } | null {
+  if (status === "hit") return { title: "APPROVED BY PUTYA · 100% ALPHA", tone: "alpha" };
+  if (status === "rekt") return { title: "REKT BY PUTYA · EXIT LIQUIDITY DETECTED", tone: "rekt" };
+  return null;
+}
+
+/** Holding any $PUTYA unlocks the Verified Cabal Caller seal. */
+export function hasPutyaSeal(putyaHeld: number | null): boolean {
+  return putyaHeld != null && putyaHeld > 0;
+}

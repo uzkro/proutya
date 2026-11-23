@@ -2,7 +2,7 @@
 // Settled lazily against GeckoTerminal USD prices whenever calls are listed.
 import { sql, ensureSchema } from "@/lib/db.server";
 import { getWardogBalance } from "@/lib/money/wardog-holdings.server";
-import { validateCall, settleCall, reputationDelta, gloryReward, type CallStatus } from "./rules";
+import { validateCall, settleCall, reputationDelta, gloryReward, slashSplit, verdictCard, type CallStatus } from "./rules";
 
 let ready: Promise<void> | null = null;
 function ensureCallsSchema() {
@@ -24,6 +24,8 @@ function ensureCallsSchema() {
       settled_at TIMESTAMPTZ,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`;
+    await sql`ALTER TABLE cabal_calls ADD COLUMN IF NOT EXISTS slashed_burn DOUBLE PRECISION NOT NULL DEFAULT 0`;
+    await sql`ALTER TABLE cabal_calls ADD COLUMN IF NOT EXISTS slashed_vault DOUBLE PRECISION NOT NULL DEFAULT 0`;
     await sql`CREATE INDEX IF NOT EXISTS cabal_calls_status_idx ON cabal_calls (status, expires_at)`;
     await sql`CREATE TABLE IF NOT EXISTS caller_reputation (user_id BIGINT PRIMARY KEY, reputation INT NOT NULL DEFAULT 0, hits INT NOT NULL DEFAULT 0, rekts INT NOT NULL DEFAULT 0)`;
   })().catch((e) => { ready = null; throw e; });
@@ -61,7 +63,7 @@ export async function createCall(userId: number, input: { tokenMaster: string; t
 }
 
 async function settleDue() {
-  const rows = (await sql`SELECT id, nation_id, caller_user_id, token_master, target_pct, start_price_usd, expires_at FROM cabal_calls WHERE status = 'active' ORDER BY expires_at LIMIT 25`).rows;
+  const rows = (await sql`SELECT id, nation_id, caller_user_id, token_master, target_pct, start_price_usd, expires_at, wardog_committed FROM cabal_calls WHERE status = 'active' ORDER BY expires_at LIMIT 25`).rows;
   for (const r of rows) {
     const { p } = await tokenPrice(r.token_master as string);
     const status: CallStatus = settleCall({ startPrice: Number(r.start_price_usd), targetPct: Number(r.target_pct), expiresAt: new Date(r.expires_at as string).getTime() }, p, Date.now());
@@ -71,6 +73,8 @@ async function settleDue() {
     }
     const upd = await sql`UPDATE cabal_calls SET status = ${status}, last_price_usd = COALESCE(${p}, last_price_usd), settled_at = NOW() WHERE id = ${r.id} AND status = 'active' RETURNING id`;
     if (!upd.rows.length) continue; // settled by a parallel request
+    const split = slashSplit(status, Number(r.wardog_committed));
+    if (split.burn || split.vault) await sql`UPDATE cabal_calls SET slashed_burn = ${split.burn}, slashed_vault = ${split.vault} WHERE id = ${r.id}`;
     const rep = reputationDelta(status, Number(r.target_pct));
     await sql`INSERT INTO caller_reputation (user_id, reputation, hits, rekts) VALUES (${r.caller_user_id}, ${rep}, ${status === "hit" ? 1 : 0}, ${status === "rekt" ? 1 : 0})
       ON CONFLICT (user_id) DO UPDATE SET reputation = caller_reputation.reputation + ${rep}, hits = caller_reputation.hits + ${status === "hit" ? 1 : 0}, rekts = caller_reputation.rekts + ${status === "rekt" ? 1 : 0}`;
@@ -82,7 +86,7 @@ async function settleDue() {
 export async function listCalls(limit = 30) {
   await ensureCallsSchema();
   try { await settleDue(); } catch (e) { console.warn("call settlement skipped", e); }
-  const rows = (await sql`SELECT c.id, c.token_master, c.token_symbol, c.target_pct, c.start_price_usd, c.last_price_usd, c.duration_hours, c.wardog_committed, c.status, c.expires_at, c.created_at,
+  const rows = (await sql`SELECT c.id, c.token_master, c.token_symbol, c.target_pct, c.start_price_usd, c.last_price_usd, c.duration_hours, c.wardog_committed, c.status, c.expires_at, c.created_at, c.slashed_burn, c.slashed_vault,
       COALESCE(u.username, u.first_name, 'Anon') AS caller, n.name AS cabal, n.emblem AS emblem, COALESCE(r.reputation, 0) AS reputation
     FROM cabal_calls c LEFT JOIN users u ON u.id = c.caller_user_id LEFT JOIN nations n ON n.id = c.nation_id LEFT JOIN caller_reputation r ON r.user_id = c.caller_user_id
     ORDER BY (c.status = 'active') DESC, c.created_at DESC LIMIT ${limit}`).rows;
@@ -92,5 +96,6 @@ export async function listCalls(limit = 30) {
     durationHours: Number(r.duration_hours), wardogCommitted: Number(r.wardog_committed), status: r.status as CallStatus,
     expiresAt: new Date(r.expires_at as string).toISOString(), caller: r.caller as string, cabal: (r.cabal as string | null) ?? null,
     emblem: (r.emblem as string | null) ?? null, reputation: Number(r.reputation),
+    slashedBurn: Number(r.slashed_burn ?? 0), slashedVault: Number(r.slashed_vault ?? 0), verdict: verdictCard(r.status as CallStatus),
   }));
 }
