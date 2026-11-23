@@ -22,6 +22,8 @@ import {
 } from "./routes";
 import type { CoffeeTx, TonConnectSwapRequest } from "./coffeeswap";
 
+import { PARTNER_FEE_BPS } from "@/lib/reactor/locket";
+
 const TOKENS_API = "https://tokens.swap.coffee/api/v3";
 const ROUTE_TTL_MS = 20_000;
 const TOKEN_TTL_MS = 5 * 60_000;
@@ -152,7 +154,15 @@ export async function buildSwapTx(input: {
   const built = await getJson<{ route_id?: number; transactions?: CoffeeTx[] }>(`${COFFEE_API}/v2/route/transactions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sender_address: input.sender, slippage: input.slippageBps / 10_000, paths: route!.paths }),
+    body: JSON.stringify({
+      sender_address: input.sender,
+      slippage: input.slippageBps / 10_000,
+      paths: route!.paths,
+      // Non-custodial partner fee: only sent once a treasury address is configured.
+      ...(process.env["SWAP_PARTNER_ADDRESS"]
+        ? { referral_address: process.env["SWAP_PARTNER_ADDRESS"], referral_fee: PARTNER_FEE_BPS / 10_000 }
+        : {}),
+    }),
   });
   if (!built?.transactions?.length) throw new Error("Couldn't prepare the swap — try again");
   return {

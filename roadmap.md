@@ -113,3 +113,13 @@ HUD classes + theme tokens, and adds no client-side secrets.
 - [x] Mobile check at 360×599 and 390×844: no sideways scroll, title fits
 - [ ] Telegram bot handle / X account still @waronnations — rename needs the new bot and accounts
 - [ ] Database views game.syndicates / game.syndicate_members (code still uses nation tables)
+
+## Omni-Market release (production brief)
+- [x] M1 anti-rug admission rules (launchpad whitelist, fixed supply, dead dev key, 100% LP burn/lock, DeDust→STON.fi v2 priority) — `src/lib/dex/launchpad-filter.ts`, tested
+- [ ] M1 wire admission into Coin Board + proof chips — needs per-launchpad factory addresses and LP-lock contract list
+- [x] M2 0.35% partner fee on in-game swaps (on when SWAP_PARTNER_ADDRESS is set) + Locket reactor math, tested
+- [ ] M2 Reactor Core HUD + reflection crediting — needs the $LOCKET jetton address and treasury wallet
+- [ ] M3 retire ClaimTreasury, WarVault circuit breaker, multi-token Claim Center — contract redeploy needed
+- [ ] M4 $PUTYA seal + bond slashing on rekt calls (rules exist in src/lib/calls)
+- [x] M5 16 Cabals seeded, guest-safe syndicate browsing (already in place)
+- [ ] M5 Cabal socials, 360px audit, haptics/SFX pass
