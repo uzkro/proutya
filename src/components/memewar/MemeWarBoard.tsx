@@ -118,6 +118,7 @@ export function MemeWarBoard({ embedded = false }: { embedded?: boolean } = {}) 
                   index={i}
                   power={(dom.top && dom.top.usd > 0 ? h.usd : h.amount) / totalKey}
                   selected={selected === i}
+                  champion={!demo && dom.top?.coin.master === h.coin.master}
                   dropTarget={selected !== null && selected !== i}
                   onTap={() => onTap(i)}
                   onDropOn={(t) => engage(i, t)}

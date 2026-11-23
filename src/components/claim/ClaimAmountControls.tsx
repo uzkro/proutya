@@ -1,6 +1,7 @@
 // src/components/claim/ClaimAmountControls.tsx
 import { TOKENS } from "@/lib/tokens";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/telegram";
 import type { TokenKey } from "@/components/claim/claim-helpers";
 
 export function ClaimAmountControls({
@@ -60,8 +61,10 @@ export function ClaimAmountControls({
             key={pct}
             type="button"
             disabled={disabled || available < minAmount}
-            onClick={() => setPct(pct)}
+            onClick={() => { haptic("light"); setPct(pct); }}
+            aria-pressed={value !== "" && Number(value) === Math.floor(available * pct * 100) / 100}
             className={cn(
+              value !== "" && Number(value) === Math.floor(available * pct * 100) / 100 && "border-neon-cyan text-neon-cyan",
               "min-h-11 hud-input px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-foreground transition hover:border-border hover:text-foreground disabled:opacity-40",
             )}
           >

@@ -144,9 +144,10 @@ export function WarVaultPanel({ authenticated }: { authenticated: boolean }) {
                     <ActionButton
                       onClick={() => requestClaim(b.key, b.symbol, b.claimable)}
                       disabled={!ok.ok || !data.live || busy !== null}
-                      className="cta-deploy min-w-20 border-0 font-black uppercase"
+                      className={`cta-deploy min-w-20 border-0 font-black uppercase ${ok.ok && data.live && busy === null ? "animate-pulse" : ""}`}
+                      aria-label={ok.ok ? `Claim ${fmtAmount(b.claimable)} ${b.symbol}` : `Claim unavailable: ${ok.reason ?? "nothing to claim"}`}
                     >
-                      {busy === b.key ? "…" : "Claim"}
+                      {busy === b.key ? "Signing…" : !connected && ok.ok ? "Connect" : ok.ok ? "Claim" : "Locked"}
                     </ActionButton>
                   </div>
                 );

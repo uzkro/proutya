@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import type { WarHolding } from "@/lib/memewar/types";
 import { CoinLogo, fmtAmount, fmtUsd } from "./CoinLogo";
 import { cn } from "@/lib/utils";
+import { Crown, Flame, TrendingDown } from "lucide-react";
 import { ActionButton } from "@/components/ActionButton";
 const MotionButton = motion.create(ActionButton);
 
@@ -14,7 +15,9 @@ export function WarCoinTile({
   dropTarget,
   onTap,
   onDropOn,
+  champion = false,
 }: {
+  champion?: boolean;
   holding: WarHolding;
   index: number;
   /** 0..1 share of board value → glow strength. */
@@ -52,6 +55,21 @@ export function WarCoinTile({
       style={{ boxShadow: `0 0 ${glow}px color-mix(in srgb, var(${selected ? "--neon-cyan" : "--destructive"}) ${Math.round(25 + power * 60)}%, transparent)` }}
       aria-label={`${coin.symbol}: ${fmtAmount(holding.amount)} (${fmtUsd(holding.usd)})`}
     >
+      {champion && (
+        <span className="absolute left-1 top-1 inline-flex items-center gap-0.5 rounded-full border border-neon-amber/70 bg-background/80 px-1 text-[8px] font-black uppercase text-neon-amber" aria-label="Champion coin">
+          <Crown className="h-2.5 w-2.5" /> Champ
+        </span>
+      )}
+      {!champion && coin.change24h != null && coin.change24h >= 20 && (
+        <span className="absolute left-1 top-1 inline-flex items-center gap-0.5 rounded-full border border-success/60 bg-background/80 px-1 text-[8px] font-black uppercase text-success" aria-label="Surging">
+          <Flame className="h-2.5 w-2.5" /> Surge
+        </span>
+      )}
+      {!champion && coin.change24h != null && coin.change24h <= -20 && (
+        <span className="absolute left-1 top-1 inline-flex items-center gap-0.5 rounded-full border border-destructive/60 bg-background/80 px-1 text-[8px] font-black uppercase text-destructive" aria-label="Bleeding">
+          <TrendingDown className="h-2.5 w-2.5" /> Bleed
+        </span>
+      )}
       {coin.verified && <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-success" aria-hidden />}
       <CoinLogo image={coin.image} imageRaw={coin.imageRaw} master={coin.master} symbol={coin.symbol} className="h-9 w-9 sm:h-11 sm:w-11" />
       <div className="w-full truncate text-[11px] font-black uppercase leading-none text-foreground">{coin.symbol}</div>
